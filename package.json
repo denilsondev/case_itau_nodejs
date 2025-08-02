@@ -10,7 +10,16 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@nestjs/common": "^11.1.5",
+    "@nestjs/core": "^11.1.5",
+    "@nestjs/mapped-types": "*",
+    "@nestjs/platform-express": "^11.1.5",
     "express": "^4.21.2",
+    "reflect-metadata": "^0.2.2",
     "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "@types/node": "^24.1.0",
+    "typescript": "^5.9.2"
   }
 }

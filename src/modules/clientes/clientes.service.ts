@@ -43,39 +43,34 @@ export class ClientesService {
   }
 
   async depositar(id: number, depositarDto: DepositarDto): Promise<{ saldo: number; message: string }> {
-    const cliente = await this.findOne(id);
-    
-    if (depositarDto.valor <= 0) {
-      throw new BadRequestException('Valor para depósito deve ser maior que zero');
+
+    const resultado = await this.clienteRepository.depositarComTransacao(id, depositarDto.valor);
+
+    if (!resultado.sucesso) {
+      throw new NotFoundException(resultado.mensagem);
     }
 
-    const novoSaldo = (cliente.saldo || 0) + depositarDto.valor;
-    await this.clienteRepository.updateSaldo(id, novoSaldo);
-    
     return { 
-      saldo: novoSaldo, 
-      message: 'Depósito realizado com sucesso' 
+      saldo: resultado.novoSaldo, 
+      message: resultado.mensagem 
     };
   }
 
   async sacar(id: number, sacarDto: SacarDto): Promise<{ saldo: number; message: string }> {
-    const cliente = await this.findOne(id);
     
-    if (sacarDto.valor <= 0) {
-      throw new BadRequestException('Valor para saque deve ser maior que zero');
+    const resultado = await this.clienteRepository.sacarComTransacao(id, sacarDto.valor);
+
+    if (!resultado.sucesso) {
+      if (resultado.mensagem.includes('Saldo insuficiente')) {
+        throw new BadRequestException(resultado.mensagem);
+      } else {
+        throw new NotFoundException(resultado.mensagem);
+      }
     }
 
-    const saldoAtual = cliente.saldo || 0;
-    if (sacarDto.valor > saldoAtual) {
-      throw new BadRequestException('Saldo insuficiente para realizar o saque');
-    }
-
-    const novoSaldo = saldoAtual - sacarDto.valor;
-    await this.clienteRepository.updateSaldo(id, novoSaldo);
-    
     return { 
-      saldo: novoSaldo, 
-      message: 'Saque realizado com sucesso' 
+      saldo: resultado.novoSaldo, 
+      message: resultado.mensagem 
     };
   }
 }

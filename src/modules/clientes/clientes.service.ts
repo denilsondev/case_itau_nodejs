@@ -2,7 +2,9 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateClienteDto } from './dto/create-cliente.dto';
 import { UpdateClienteDto } from './dto/update-cliente.dto';
 import { ClienteRepository } from './cliente.repository';
-import { Cliente, DepositarDto, SacarDto } from './interfaces/cliente.interface';
+import { Cliente } from './interfaces/cliente.interface';
+import { DepositarDto } from './dto/depositar.dto';
+import { SacarDto } from './dto/sacar.dto';
 
 
 @Injectable()

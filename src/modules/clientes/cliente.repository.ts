@@ -16,7 +16,7 @@ export class ClienteRepository {
         this.db.run(`CREATE TABLE IF NOT EXISTS clientes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             nome TEXT NOT NULL,
-            email TEXT NOT NUKK UNIQUE,
+            email TEXT NOT NULL UNIQUE,
             saldo FLOAT DEFAULT 0,
             createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
             updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -26,7 +26,7 @@ export class ClienteRepository {
 
   async findAll(): Promise<Cliente[] | null>{
     return new Promise((resolve, reject) => {
-        const query = 'SELCT * FROM clientes';
+        const query = 'SELECT * FROM clientes';
         this.db.all(query, [], (err, rows) => {
             if(err) {
                 reject(err);

@@ -1,6 +1,7 @@
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from './app.module';
 import { ValidationPipe } from "@nestjs/common";
+import { GlobalExceptionFilter } from "./shared/filters/global-exception.filters";
 
 
 async function bootstrap() {
@@ -11,6 +12,9 @@ async function bootstrap() {
         forbidNonWhitelisted: true, // Rejeita requisições com propriedades extras
         transform: true, // Transforma automaticamente tipos
     }));
+
+    // Habilitar exception filter global
+    app.useGlobalFilters(new GlobalExceptionFilter());
 
     app.enableCors();
 

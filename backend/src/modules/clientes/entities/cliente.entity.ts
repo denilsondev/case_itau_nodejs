@@ -1,25 +1,31 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity('clientes')
 export class Cliente {
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @PrimaryGeneratedColumn()
-    id?: number;
+  @Column({ type: 'varchar', length: 100, nullable: false })
+  nome: string;
 
-    @Column({ type: 'varchar', length: 100, nullable: false })
-    nome: string;
+  @Column({ type: 'varchar', length: 255, nullable: false, unique: true })
+  email: string;
 
-    @Column({ type: 'varchar', length: 255, nullable: false, unique: true })
-    email: string;
+  @Column({ 
+    type: 'decimal', 
+    precision: 15, 
+    scale: 2, 
+    default: 0,
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string) => parseFloat(value)
+    }
+  })
+  saldo: number;
 
-    @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
-    saldo?: number;
+  @CreateDateColumn()
+  createdAt: Date;
 
-    @CreateDateColumn()
-    createdAt?: Date;
-
-    @UpdateDateColumn()
-    updatedAt?: Date;
+  @UpdateDateColumn()
+  updatedAt: Date;
 }
-

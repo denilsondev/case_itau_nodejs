@@ -61,6 +61,11 @@ export class ClienteRepository {
 
   async depositarComTransacao(id: number, valor: number): Promise<{ sucesso: boolean; novoSaldo: number; mensagem: string }> {
 
+    console.log('=== DEPÓSITO DEBUG ===');
+    console.log('ID do cliente:', id);
+    console.log('Valor recebido:', valor);
+    console.log('Tipo do valor:', typeof valor);
+
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();

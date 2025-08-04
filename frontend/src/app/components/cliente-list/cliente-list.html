@@ -1,0 +1,140 @@
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h5 class="mb-0">👥 Clientes Cadastrados</h5>
+    <button 
+      class="btn btn-outline-primary btn-sm" 
+      (click)="carregarClientes()"
+      [disabled]="loading">
+      <span *ngIf="loading" class="spinner-border spinner-border-sm me-1"></span>
+      {{ loading ? 'Carregando...' : '🔄 Atualizar' }}
+    </button>
+  </div>
+  <div class="card-body">
+    <!-- Loading -->
+    <div *ngIf="loading" class="text-center py-4">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Carregando...</span>
+      </div>
+      <p class="mt-2">Carregando clientes...</p>
+    </div>
+
+    <!-- Lista vazia -->
+    <div *ngIf="!loading && clientes.length === 0" class="text-center py-4">
+      <p class="text-muted">Nenhum cliente cadastrado ainda.</p>
+      <p class="text-muted">Use o formulário acima para criar um cliente.</p>
+    </div>
+
+    <!-- Tabela de clientes -->
+    <div *ngIf="!loading && clientes.length > 0" class="table-responsive">
+      <table class="table table-hover">
+        <thead class="table-light">
+          <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>Saldo</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let cliente of clientes">
+                   
+                   <!-- Modo visualização -->
+                   <ng-container *ngIf="editandoCliente?.id !== cliente.id">
+                     <td>{{ cliente.id }}</td>
+                     <td>{{ cliente.nome }}</td>
+                     <td>{{ cliente.email }}</td>
+                     <td>
+                       <span class="badge" [ngClass]="{
+                         'bg-success': (cliente.saldo || 0) > 0,
+                         'bg-warning': (cliente.saldo || 0) === 0,
+                         'bg-danger': (cliente.saldo || 0) < 0
+                       }">
+                         {{ (cliente.saldo || 0) | moeda }}
+                       </span>
+                     </td>
+                     <td>
+                       <div class="btn-group btn-group-sm" role="group">
+                         <button 
+                           class="btn btn-outline-info"
+                           (click)="abrirOperacoes(cliente); $event.stopPropagation()"
+                           title="Operações bancárias">
+                           💰 Operações
+                         </button>
+                         <button 
+                           class="btn btn-outline-warning"
+                           (click)="iniciarEdicao(cliente); $event.stopPropagation()"
+                           title="Editar cliente">
+                           ✏️ Editar
+                         </button>
+                         <button 
+                           class="btn btn-outline-danger"
+                           (click)="deletarCliente(cliente.id!); $event.stopPropagation()"
+                           title="Deletar cliente">
+                           🗑️ Deletar
+                         </button>
+                       </div>
+                     </td>
+                   </ng-container>
+
+                   <!-- Modo edição simplificado -->
+                   <ng-container *ngIf="editandoCliente?.id === cliente.id">
+                     <td>{{ cliente.id }}</td>
+                     <td>
+                       <input 
+                         type="text" 
+                         class="form-control form-control-sm"
+                         [(ngModel)]="clienteEditando.nome"
+                         placeholder="Nome"
+                         maxlength="100">
+                     </td>
+                     <td>
+                       <input 
+                         type="email" 
+                         class="form-control form-control-sm"
+                         [(ngModel)]="clienteEditando.email"
+                         placeholder="Email"
+                         maxlength="255">
+                     </td>
+                     <td>
+                       <span class="badge" [ngClass]="{
+                         'bg-success': (cliente.saldo || 0) > 0,
+                         'bg-warning': (cliente.saldo || 0) === 0,
+                         'bg-danger': (cliente.saldo || 0) < 0
+                       }">
+                         {{ (cliente.saldo || 0) | moeda }}
+                       </span>
+                     </td>
+                     <td>
+                       <div class="btn-group btn-group-sm" role="group">
+                         <button 
+                           class="btn btn-success btn-sm"
+                           (click)="salvarEdicao(); $event.stopPropagation()"
+                           [disabled]="loading || !clienteEditando.nome || !clienteEditando.email"
+                           title="Salvar alterações">
+                           <span *ngIf="loading" class="spinner-border spinner-border-sm me-1"></span>
+                           💾 Salvar
+                         </button>
+                         <button 
+                           class="btn btn-secondary btn-sm"
+                           (click)="cancelarEdicao(); $event.stopPropagation()"
+                           title="Cancelar edição">
+                           ❌ Cancelar
+                         </button>
+                       </div>
+                     </td>
+                   </ng-container>
+                 </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Mensagem de erro -->
+    <div *ngIf="mensagem" class="alert mt-3" [ngClass]="{
+      'alert-success': sucesso,
+      'alert-danger': !sucesso
+    }">
+      {{ mensagem }}
+    </div>
+  </div>
+</div>

@@ -1,0 +1,130 @@
+<div class="card">
+  <div class="card-header">
+    <h5 class="mb-0">💰 Operações Bancárias</h5>
+  </div>
+  <div class="card-body">
+    <!-- Cliente não selecionado -->
+    <div *ngIf="!clienteSelecionado" class="text-center py-4">
+      <div class="alert alert-info">
+        <i class="bi bi-info-circle me-2"></i>
+        <strong>Selecione um cliente</strong> na lista acima para realizar operações bancárias.
+      </div>
+    </div>
+
+    <!-- Cliente selecionado -->
+    <div *ngIf="clienteSelecionado">
+      <!-- Informações do cliente -->
+      <div class="alert alert-success mb-4">
+        <div class="row align-items-center">
+          <div class="col-md-8">
+            <h6 class="mb-1">Cliente Selecionado</h6>
+            <p class="mb-1"><strong>Nome:</strong> {{ clienteSelecionado.nome }}</p>
+            <p class="mb-0"><strong>Email:</strong> {{ clienteSelecionado.email }}</p>
+          </div>
+          <div class="col-md-4 text-end">
+            <div class="h4 mb-0">
+              <span class="badge" [ngClass]="{
+                'bg-success': saldoCliente > 0,
+                'bg-warning': saldoCliente === 0,
+                'bg-danger': saldoCliente < 0
+              }">
+                Saldo: {{ saldoCliente | moeda }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Formulário de operações -->
+      <form (ngSubmit)="realizarOperacao()" #operacaoForm="ngForm">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="valor" class="form-label">Valor (R$)</label>
+            <div class="input-group">
+              <span class="input-group-text">R$</span>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="valor"
+                name="valor"
+                [(ngModel)]="valor"
+                (ngModelChange)="onValorChange()"
+                mask="separator.2"
+                thousandSeparator="."
+                separatorLimit="999999999"
+                placeholder="0,00"
+                [disabled]="loading"
+                style="text-align: right;">
+            </div>
+            <div class="invalid-feedback" *ngIf="operacaoForm.submitted && !valor">
+              Valor é obrigatório
+            </div>
+            <div class="invalid-feedback" *ngIf="operacaoForm.submitted && valorNumerico <= 0">
+              Valor deve ser maior que zero
+            </div>
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Tipo de Operação</label>
+            <div class="d-grid gap-2">
+              <div class="btn-group" role="group">
+                <input 
+                  type="radio" 
+                  class="btn-check" 
+                  name="tipoOperacao" 
+                  id="deposito" 
+                  value="deposito"
+                  [(ngModel)]="tipoOperacao"
+                  [disabled]="loading">
+                <label class="btn btn-outline-success" for="deposito">
+                  💰 Depósito
+                </label>
+
+                <input 
+                  type="radio" 
+                  class="btn-check" 
+                  name="tipoOperacao" 
+                  id="saque" 
+                  value="saque"
+                  [(ngModel)]="tipoOperacao"
+                  [disabled]="loading">
+                <label class="btn btn-outline-warning" for="saque">
+                  💸 Saque
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botão de operação -->
+        <div class="d-grid gap-2">
+          <button 
+            type="submit" 
+            class="btn"
+            [ngClass]="{
+              'btn-success': tipoOperacao === 'deposito',
+              'btn-warning': tipoOperacao === 'saque',
+              'btn-secondary': !tipoOperacao
+            }"
+            [disabled]="loading || !tipoOperacao || !valor || valorNumerico <= 0">
+            <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+            {{ 
+              loading ? 'Processando...' : 
+              tipoOperacao === 'deposito' ? '💰 Realizar Depósito' :
+              tipoOperacao === 'saque' ? '💸 Realizar Saque' :
+              'Selecione uma operação'
+            }}
+          </button>
+        </div>
+      </form>
+
+      <!-- Mensagem de resultado -->
+      <div *ngIf="mensagem" class="alert mt-3" [ngClass]="{
+        'alert-success': sucesso,
+        'alert-danger': !sucesso
+      }">
+        {{ mensagem }}
+      </div>
+    </div>
+  </div>
+</div>

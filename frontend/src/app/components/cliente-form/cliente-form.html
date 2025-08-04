@@ -1,0 +1,58 @@
+<div class="card">
+  <div class="card-header">
+    <h5 class="mb-0">➕ Criar Novo Cliente</h5>
+  </div>
+  <div class="card-body">
+    <form (ngSubmit)="onSubmit()" #clienteForm="ngForm">
+      <div class="mb-3">
+        <label for="nome" class="form-label">Nome</label>
+        <input 
+          type="text" 
+          class="form-control" 
+          id="nome"
+          name="nome"
+          [(ngModel)]="cliente.nome"
+          required
+          minlength="2"
+          placeholder="Digite o nome do cliente">
+        <div class="invalid-feedback" *ngIf="clienteForm.submitted && !cliente.nome">
+          Nome é obrigatório
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input 
+          type="email" 
+          class="form-control" 
+          id="email"
+          name="email"
+          [(ngModel)]="cliente.email"
+          required
+          email
+          placeholder="Digite o email do cliente">
+        <div class="invalid-feedback" *ngIf="clienteForm.submitted && !cliente.email">
+          Email é obrigatório
+        </div>
+      </div>
+
+      <div class="d-grid gap-2">
+        <button 
+          type="submit" 
+          class="btn btn-primary"
+          [disabled]="loading">
+          <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+          {{ loading ? 'Criando...' : 'Criar Cliente' }}
+        </button>
+      </div>
+    </form>
+
+    <!-- Mensagem de sucesso/erro -->
+    <div *ngIf="mensagem" class="alert mt-3" [ngClass]="{
+      'alert-success': sucesso,
+      'alert-danger': !sucesso
+    }">
+      {{ mensagem }}
+    </div>
+  </div>
+</div>

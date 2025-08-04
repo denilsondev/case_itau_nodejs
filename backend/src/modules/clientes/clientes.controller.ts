@@ -6,8 +6,9 @@ import { DepositarDto } from './dto/depositar.dto';
 import { SacarDto } from './dto/sacar.dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
-@ApiTags('clientes')
+
 @Controller('clientes')
+@ApiTags('clientes')
 export class ClientesController {
   constructor(private readonly clientesService: ClientesService) {}
 
@@ -42,14 +43,12 @@ export class ClientesController {
   }
 
   @Post(':id/depositar')
-  @ApiTags('operacoes')
   @ApiOperation({ summary: 'Realizar depósito na conta do cliente' })
   depositar(@Param('id') id: string, @Body() depositarDto: DepositarDto) {
     return this.clientesService.depositar(parseInt(id), depositarDto);
   }
 
   @Post(':id/sacar')
-  @ApiTags('operacoes')
   @ApiOperation({ summary: 'Realizar saque na conta do cliente' })
   sacar(@Param('id') id: string, @Body() sacarDto: SacarDto) {
     return this.clientesService.sacar(parseInt(id), sacarDto);

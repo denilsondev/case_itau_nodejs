@@ -1,4 +1,5 @@
 services:
+  # Banco de dados MySQL
   mysql:
     image: mysql:8.0
     container_name: case_itau_mysql
@@ -12,8 +13,39 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./case_itau_nodejs/init.sql:/docker-entrypoint-initdb.d/init.sql
     command: --default-authentication-plugin=mysql_native_password
+
+  # Backend API (NestJS)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: case_itau_backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USERNAME=case_itau_user
+      - DB_PASSWORD=case_itau_pass
+      - DB_DATABASE=case_itau_db
+      - NODE_ENV=development
+    depends_on:
+      - mysql
+
+  # Frontend (Angular)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: case_itau_frontend
+    restart: unless-stopped
+    ports:
+      - "4200:4200"
+    depends_on:
+      - backend
 
 volumes:
   mysql_data: 

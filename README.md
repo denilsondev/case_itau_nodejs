@@ -19,7 +19,7 @@ No projeto foi disponibilizada uma API de Clientes com os metodos abaixo realiza
 	POST   clientes/{ID}/depositar - ADICIONA OU SUBTRAI DETERMINADO VALOR DO SALDO DE UM CLIENTE
     POST   clientes/{ID}/sacar     - ADICIONA OU SUBTRAI DETERMINADO VALOR DO SALDO DE UM CLIENTE
 
-## Ações a serem realizadas
+## Ações a serem realizadass
 1. Faça o fork do projeto no seu github. Não realize commits na branch main e nem crie novas branchs.
 2. O código da api de clientes faz mal uso dos objetos, não segue boas práticas e não possui qualidade. Refatore o codigo utilizando as melhores bibliotecas, praticas, patterns e garanta a qualidade da aplicação. Fique a vontade para mudar o que achar necessário.
 3. O controle de saldo do cliente possui um erro. Identifique e implemente a correção
@@ -27,3 +27,4 @@ No projeto foi disponibilizada uma API de Clientes com os metodos abaixo realiza
 5. Utilizando o Angular, crie uma aplicação web  que consuma todos os metodos da API de clientes
 
 Após finalizar o case, envie o link do seu github com a solução final para o e-mail andre.gattini@itau-unibanco.com.br
+

@@ -1,4 +1,4 @@
-import { Injectable, ConflictException } from '@nestjs/common';
+import { Injectable, ConflictException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { Cliente } from './entities/cliente.entity';
@@ -7,6 +7,9 @@ import { UpdateClienteDto } from './dto/update-cliente.dto';
 
 @Injectable()
 export class ClienteRepository {
+
+  private readonly logger = new Logger(ClienteRepository.name);
+
   constructor(
     @InjectRepository(Cliente)
     private clienteRepository: Repository<Cliente>,
@@ -29,11 +32,16 @@ export class ClienteRepository {
     // Verificar se email já existe
     const existingCliente = await this.findByEmail(createClienteDto.email);
     if (existingCliente) {
+      this.logger.warn(`Tentativa de criar cliente com email já existente: ${createClienteDto.email}`);
       throw new ConflictException('Email já está em uso');
     }
 
     const cliente = this.clienteRepository.create(createClienteDto);
-    return this.clienteRepository.save(cliente);
+    const savedCliente = await this.clienteRepository.save(cliente);
+
+    this.logger.log(`Cliente criado com sucesso: ${savedCliente.id}`);
+
+    return savedCliente;
   }
 
   async update(id: number, updateClienteDto: UpdateClienteDto): Promise<Cliente | null> {
@@ -56,15 +64,20 @@ export class ClienteRepository {
 
   async delete(id: number): Promise<boolean> {
     const result = await this.clienteRepository.delete(id);
-    return result.affected > 0;
+    const deleted = await result.affected > 0;
+
+    if (deleted) {
+      this.logger.log(`Cliente deletado com sucesso: ID ${id}`);
+    } else {
+      this.logger.warn(`Tentativa de deletar cliente inexistente: ID ${id}`);
+    }
+
+    return deleted;
   }
 
   async depositarComTransacao(id: number, valor: number): Promise<{ sucesso: boolean; novoSaldo: number; mensagem: string }> {
 
-    console.log('=== DEPÓSITO DEBUG ===');
-    console.log('ID do cliente:', id);
-    console.log('Valor recebido:', valor);
-    console.log('Tipo do valor:', typeof valor);
+    this.logger.log(`Iniciando depósito: Cliente ID ${id}, Valor R$ ${valor.toFixed(2)}`);
 
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -80,6 +93,7 @@ export class ClienteRepository {
 
       if (!cliente) {
         await queryRunner.rollbackTransaction();
+        this.logger.warn(`Cliente não encontrado para depósito: ID ${id}`);
         return { 
           sucesso: false, 
           novoSaldo: 0, 
@@ -96,6 +110,8 @@ export class ClienteRepository {
       // Commit da transação
       await queryRunner.commitTransaction();
 
+      this.logger.log(`Depósito realizado com sucesso: Cliente ID ${id}, Saldo anterior R$ ${saldoAtual.toFixed(2)}, Novo saldo R$ ${novoSaldo.toFixed(2)}`);
+
       return { 
         sucesso: true, 
         novoSaldo, 
@@ -104,7 +120,7 @@ export class ClienteRepository {
 
 
     } catch (error) {
-
+      this.logger.error(`Erro no depósito: Cliente ID ${id}, Valor R$ ${valor.toFixed(2)}`, error.stack);
       // Rollback em caso de erro
       await queryRunner.rollbackTransaction();
       throw error;
@@ -120,6 +136,7 @@ export class ClienteRepository {
     valor: number
   ): Promise<{ sucesso: boolean; novoSaldo: number; mensagem: string }> {
     
+    this.logger.log(`Iniciando saque: Cliente ID ${id}, Valor R$ ${valor.toFixed(2)}`);
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -133,6 +150,7 @@ export class ClienteRepository {
 
       if (!cliente) {
         await queryRunner.rollbackTransaction();
+        this.logger.warn(`Cliente não encontrado para saque: ID ${id}`);
         return { 
           sucesso: false, 
           novoSaldo: 0, 
@@ -145,6 +163,7 @@ export class ClienteRepository {
       // Validar se tem saldo suficiente
       if (valor > saldoAtual) {
         await queryRunner.rollbackTransaction();
+        this.logger.warn(`Saldo insuficiente para saque: Cliente ID ${id}, Saldo atual R$ ${saldoAtual.toFixed(2)}, Valor solicitado R$ ${valor.toFixed(2)}`);
         return { 
           sucesso: false, 
           novoSaldo: saldoAtual, 
@@ -159,6 +178,7 @@ export class ClienteRepository {
 
       // Commit da transação
       await queryRunner.commitTransaction();
+      this.logger.log(`Saque realizado com sucesso: Cliente ID ${id}, Saldo anterior R$ ${saldoAtual.toFixed(2)}, Novo saldo R$ ${novoSaldo.toFixed(2)}`);
 
       return { 
         sucesso: true, 
@@ -167,6 +187,7 @@ export class ClienteRepository {
       };
 
     } catch (error) {
+      this.logger.error(`Erro no saque: Cliente ID ${id}, Valor R$ ${valor.toFixed(2)}`, error.stack);
       // Rollback em caso de erro
       await queryRunner.rollbackTransaction();
       throw error;

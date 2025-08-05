@@ -18,6 +18,7 @@ app.listen(8080, () => {
     })
 })
 
+
 app.get('/clientes/:id', (req,res) => {
     const {id} = req.params;
     const query = 'SELECT * FROM clientes WHERE id = ?';

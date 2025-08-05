@@ -23,7 +23,7 @@ export interface SacarDto {
   providedIn: 'root'
 })
 export class ClienteService {
-  private apiUrl = 'http://localhost:8080/api/clientes';
+  private apiUrl = 'http://54.80.160.20:8080/api/clientes';
 
   constructor(private http: HttpClient) { }
 

@@ -188,6 +188,7 @@ export class ClienteRepository {
 
     } catch (error) {
       this.logger.error(`Erro no saque: Cliente ID ${id}, Valor R$ ${valor.toFixed(2)}`, error.stack);
+      
       // Rollback em caso de erro
       await queryRunner.rollbackTransaction();
       throw error;

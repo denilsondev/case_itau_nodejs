@@ -1,14 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors } from '@nestjs/common';
 import { ClientesService } from './clientes.service';
 import { CreateClienteDto } from './dto/create-cliente.dto';
 import { UpdateClienteDto } from './dto/update-cliente.dto';
 import { DepositarDto } from './dto/depositar.dto';
 import { SacarDto } from './dto/sacar.dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { CacheInterceptor } from 'src/shared/interceptors/cache.interceptor';
 
 
-@Controller('clientes')
 @ApiTags('clientes')
+@Controller('clientes')
+@UseInterceptors(CacheInterceptor)
 export class ClientesController {
   constructor(private readonly clientesService: ClientesService) {}
 

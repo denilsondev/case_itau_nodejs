@@ -23,10 +23,13 @@ export interface SacarDto {
   providedIn: 'root'
 })
 export class ClienteService {
-  // private apiUrl = 'http://54.80.160.20:8080/api/clientes';
-  private apiUrl = 'http://107.20.56.165:8080/api/clientes';
 
-  constructor(private http: HttpClient) { }
+  private apiUrl: string;
+
+  constructor(private http: HttpClient) {
+
+    this.apiUrl = `http://${window.location.hostname}:8080/api/clientes`;
+  }
 
   // Listar todos os clientes
   getClientes(): Observable<Cliente[]> {
@@ -63,3 +66,4 @@ export class ClienteService {
     return this.http.post(`${this.apiUrl}/${id}/sacar`, { valor });
   }
 }
+

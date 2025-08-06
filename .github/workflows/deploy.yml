@@ -1,0 +1,82 @@
+# ========================================
+# GITHUB ACTIONS - DEPLOY AUTOMÁTICO
+# ========================================
+# Este workflow executa automaticamente quando você faz push para a branch main
+# Ele faz: terraform apply + atualiza IP no frontend + deploy na EC2
+
+name: Deploy to EC2
+
+# ========================================
+# TRIGGER - QUANDO EXECUTAR
+# ========================================
+# Executa sempre que alguém fizer push para a branch main
+on:
+  push:
+    branches: [ main ]
+
+# ========================================
+# JOB PRINCIPAL - DEPLOY
+# ========================================
+jobs:
+  deploy:
+    # Executa em um runner Ubuntu (servidor do GitHub)
+    runs-on: ubuntu-latest
+    
+    # ========================================
+    # STEPS - PASSOS DO DEPLOY
+    # ========================================
+    steps:
+    
+    # STEP 1: BAIXAR O CÓDIGO
+    # ========================================
+    - name: Checkout code
+      uses: actions/checkout@v4
+      # Baixa o código do repositório para o runner
+    
+    # STEP 2: CONFIGURAR TERRAFORM
+    # ========================================
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      # Instala o Terraform no runner
+    
+    # STEP 3: CONFIGURAR AWS
+    # ========================================
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+        # Configura as credenciais da AWS para o Terraform funcionar
+    
+    # STEP 4: DEPLOY DA INFRAESTRUTURA
+    # ========================================
+    - name: Deploy Infrastructure
+      run: |
+        cd terraform
+        terraform init
+        terraform apply -auto-approve
+        echo "IP=$(terraform output -raw ec2_public_ip)" >> $GITHUB_ENV
+        # Executa terraform apply e salva o IP da EC2 em uma variável
+    
+    # STEP 5: ATUALIZAR IP NO FRONTEND
+    # ========================================
+    - name: Update Frontend API URL
+      run: |
+        sed -i "s|localhost:8080|${{ env.IP }}:8080|g" frontend/src/app/services/cliente.ts
+        # Substitui localhost:8080 pelo IP real da EC2 no arquivo do frontend
+    
+    # STEP 6: DEPLOY NA EC2
+    # ========================================
+    - name: Deploy to EC2
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ env.IP }}
+        username: ubuntu
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          cd /home/ubuntu/case-itau
+          git pull origin main
+          docker-compose down
+          docker-compose up -d --build
+          # Conecta na EC2 via SSH e executa o deploy 

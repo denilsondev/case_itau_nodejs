@@ -30,7 +30,7 @@ module.exports = {
   },
   
   // Módulos para mapear
-  moduleNameMapping: {
+  moduleNameMapper: {
     '^src/(.*)$': '<rootDir>/src/$1',
   },
 }; 

@@ -1,44 +1,44 @@
 import { validate } from 'class-validator';
-import { CreateClienteDto } from './create-cliente.dto';
+import { CreateClienteDto } from '../../../../../modules/clientes/dto/cliente/create.dto';
 
 describe('CreateClienteDto', () => {
   it('deve ser válido com dados corretos', async () => {
-    // Arrange - Preparar dados válidos
+    // Arrange
     const dto = new CreateClienteDto();
     dto.nome = 'João Silva';
     dto.email = 'joao@email.com';
 
-    // Act - Executar validação
+    // Act 
     const errors = await validate(dto);
 
-    // Assert - Verificar que não há erros
+    // Assert
     expect(errors.length).toBe(0);
   });
 
   it('deve ser inválido com nome vazio', async () => {
-    // Arrange - Preparar dados inválidos
+    // Arrange
     const dto = new CreateClienteDto();
     dto.nome = '';
     dto.email = 'joao@email.com';
 
-    // Act - Executar validação
+    // Act
     const errors = await validate(dto);
 
-    // Assert - Verificar que há erros
+    // Assert
     expect(errors.length).toBeGreaterThan(0);
     expect(errors[0].constraints?.isNotEmpty).toBeDefined();
   });
 
   it('deve ser inválido com email inválido', async () => {
-    // Arrange - Preparar dados inválidos
+    // Arrange
     const dto = new CreateClienteDto();
     dto.nome = 'João Silva';
     dto.email = 'email-invalido';
 
-    // Act - Executar validação
+    // Act 
     const errors = await validate(dto);
 
-    // Assert - Verificar que há erros
+    // Assert
     expect(errors.length).toBeGreaterThan(0);
     expect(errors[0].constraints?.isEmail).toBeDefined();
   });

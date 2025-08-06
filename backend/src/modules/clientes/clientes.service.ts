@@ -1,32 +1,37 @@
 import { Injectable, NotFoundException, BadRequestException, Inject } from '@nestjs/common';
-import { CreateClienteDto } from './dto/create-cliente.dto';
-import { UpdateClienteDto } from './dto/update-cliente.dto';
-import { DepositarDto } from './dto/depositar.dto';
-import { SacarDto } from './dto/sacar.dto';
+import { CreateClienteDto } from './dto/cliente/create.dto';
+import { UpdateClienteDto } from './dto/cliente/update.dto';
+import { DepositarDto } from './dto/operacao/depositar.dto';
+import { SacarDto } from './dto/operacao/sacar.dto';
+import { ClienteResponseDto } from './dto/cliente/response.dto';
+import { OperacaoResponseDto } from './dto/operacao/response.dto';
+import { MessageResponseDto } from './dto/shared/message-response.dto';
 import { ClienteRepository } from './cliente.repository';
 import { Cliente } from './entities/cliente.entity';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
+import { plainToClass } from 'class-transformer';
 
 @Injectable()
 export class ClientesService {
   constructor(private readonly clienteRepository: ClienteRepository, @Inject(CACHE_MANAGER) private cacheManager: Cache) {}
 
-  async create(createClienteDto: CreateClienteDto): Promise<Cliente> {
+  async create(createClienteDto: CreateClienteDto): Promise<ClienteResponseDto> {
 
     const novoCliente = await this.clienteRepository.create(createClienteDto);
 
      // Invalidar cache de lista de clientes
     await this.cacheManager.del('clientes:all');
 
-    return novoCliente;
+    // Converter Entity para DTO
+    return plainToClass(ClienteResponseDto, novoCliente, { excludeExtraneousValues: true });
   }
 
-  async findAll(): Promise<Cliente[]> {
+  async findAll(): Promise<ClienteResponseDto[]> {
      // Tentar buscar do cache primeiro
     const cachedClientes = await this.cacheManager.get<Cliente[]>('clientes:all');
     if (cachedClientes) {
-      return cachedClientes;
+      return plainToClass(ClienteResponseDto, cachedClientes, { excludeExtraneousValues: true });
     }
 
      // Se não estiver no cache, buscar do banco
@@ -35,14 +40,15 @@ export class ClientesService {
     // Salvar no cache por 5 minutos
     await this.cacheManager.set('clientes:all', clientes, 300000);
     
-    return clientes;
+    // Converter Entity para DTO
+    return plainToClass(ClienteResponseDto, clientes, { excludeExtraneousValues: true });
   }
 
-  async findOne(id: number): Promise<Cliente> {
+  async findOne(id: number): Promise<ClienteResponseDto> {
      // Tentar buscar do cache primeiro
     const cachedCliente = await this.cacheManager.get<Cliente>(`cliente:${id}`);
     if (cachedCliente) {
-      return cachedCliente;
+      return plainToClass(ClienteResponseDto, cachedCliente, { excludeExtraneousValues: true });
     }
 
     // Se não estiver no cache, buscar do banco
@@ -53,10 +59,12 @@ export class ClientesService {
 
     // Salvar no cache por 5 minutos
     await this.cacheManager.set(`cliente:${id}`, cliente, 300000);
-    return cliente;
+    
+    // Converter Entity para DTO
+    return plainToClass(ClienteResponseDto, cliente, { excludeExtraneousValues: true });
   }
 
-  async update(id: number, updateClienteDto: UpdateClienteDto): Promise<Cliente> {
+  async update(id: number, updateClienteDto: UpdateClienteDto): Promise<ClienteResponseDto> {
     const cliente = await this.clienteRepository.update(id, updateClienteDto);
     if (!cliente) {
       throw new NotFoundException(`Cliente com ID ${id} não encontrado`);
@@ -66,10 +74,11 @@ export class ClientesService {
     await this.cacheManager.del(`cliente:${id}`);
     await this.cacheManager.del('clientes:all');
 
-    return cliente;
+    // Converter Entity para DTO
+    return plainToClass(ClienteResponseDto, cliente, { excludeExtraneousValues: true });
   }
 
-  async remove(id: number): Promise<{ message: string }> {
+  async remove(id: number): Promise<MessageResponseDto> {
     const deleted = await this.clienteRepository.delete(id);
     if (!deleted) {
       throw new NotFoundException(`Cliente com ID ${id} não encontrado`);
@@ -82,7 +91,7 @@ export class ClientesService {
     return { message: 'Cliente deletado com sucesso' };
   }
 
-  async depositar(id: number, depositarDto: DepositarDto): Promise<{ saldo: number; message: string }> {
+  async depositar(id: number, depositarDto: DepositarDto): Promise<OperacaoResponseDto> {
 
     const resultado = await this.clienteRepository.depositarComTransacao(id, depositarDto.valor);
 
@@ -95,12 +104,12 @@ export class ClientesService {
     await this.cacheManager.del('clientes:all');
 
     return { 
-      saldo: resultado.novoSaldo, 
-      message: resultado.mensagem 
+      message: resultado.mensagem,
+      novoSaldo: resultado.novoSaldo
     };
   }
 
-  async sacar(id: number, sacarDto: SacarDto): Promise<{ saldo: number; message: string }> {
+  async sacar(id: number, sacarDto: SacarDto): Promise<OperacaoResponseDto> {
     
     const resultado = await this.clienteRepository.sacarComTransacao(id, sacarDto.valor);
 
@@ -117,8 +126,8 @@ export class ClientesService {
     await this.cacheManager.del('clientes:all');
 
     return { 
-      saldo: resultado.novoSaldo, 
-      message: resultado.mensagem 
+      message: resultado.mensagem,
+      novoSaldo: resultado.novoSaldo
     };
   }
 }

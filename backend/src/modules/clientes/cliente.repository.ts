@@ -2,8 +2,8 @@ import { Injectable, ConflictException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { Cliente } from './entities/cliente.entity';
-import { CreateClienteDto } from './dto/create-cliente.dto';
-import { UpdateClienteDto } from './dto/update-cliente.dto';
+import { CreateClienteDto } from './dto/cliente/create.dto';
+import { UpdateClienteDto } from './dto/cliente/update.dto';
 
 @Injectable()
 export class ClienteRepository {

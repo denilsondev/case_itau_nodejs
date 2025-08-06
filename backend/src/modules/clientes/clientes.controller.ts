@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { ClientesService } from './clientes.service';
 import { CreateClienteDto } from './dto/cliente/create.dto';
 import { UpdateClienteDto } from './dto/cliente/update.dto';
@@ -8,12 +8,9 @@ import { ClienteResponseDto } from './dto/cliente/response.dto';
 import { OperacaoResponseDto } from './dto/operacao/response.dto';
 import { MessageResponseDto } from './dto/shared/message-response.dto';
 import { ApiOperation, ApiTags, ApiResponse } from '@nestjs/swagger';
-import { CacheInterceptor } from '../../shared/interceptors/cache.interceptor';
-
 
 @ApiTags('clientes')
 @Controller('clientes')
-@UseInterceptors(CacheInterceptor)
 export class ClientesController {
   constructor(private readonly clientesService: ClientesService) {}
 

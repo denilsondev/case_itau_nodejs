@@ -31,7 +31,9 @@ export class ClientesService {
      // Tentar buscar do cache primeiro
     const cachedClientes = await this.cacheManager.get<Cliente[]>('clientes:all');
     if (cachedClientes) {
-      return plainToClass(ClienteResponseDto, cachedClientes, { excludeExtraneousValues: true });
+      return cachedClientes.map(cliente => 
+        plainToClass(ClienteResponseDto, cliente, { excludeExtraneousValues: true })
+      );
     }
 
      // Se não estiver no cache, buscar do banco
@@ -40,8 +42,10 @@ export class ClientesService {
     // Salvar no cache por 5 minutos
     await this.cacheManager.set('clientes:all', clientes, 300000);
     
-    // Converter Entity para DTO
-    return plainToClass(ClienteResponseDto, clientes, { excludeExtraneousValues: true });
+    // Converter Entity para DTO - usar map para arrays
+    return clientes.map(cliente => 
+      plainToClass(ClienteResponseDto, cliente, { excludeExtraneousValues: true })
+    );
   }
 
   async findOne(id: number): Promise<ClienteResponseDto> {

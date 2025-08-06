@@ -137,6 +137,7 @@ export class ClienteRepository {
   ): Promise<{ sucesso: boolean; novoSaldo: number; mensagem: string }> {
     
     this.logger.log(`Iniciando saque: Cliente ID ${id}, Valor R$ ${valor.toFixed(2)}`);
+
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -189,12 +190,12 @@ export class ClienteRepository {
     } catch (error) {
       this.logger.error(`Erro no saque: Cliente ID ${id}, Valor R$ ${valor.toFixed(2)}`, error.stack);
       
-      // Rollback em caso de erro
       await queryRunner.rollbackTransaction();
       throw error;
     } finally {
       // Sempre liberar o query runner
       await queryRunner.release();
+      
     }
   }
   

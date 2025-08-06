@@ -2,7 +2,7 @@
 # GITHUB ACTIONS - DEPLOY AUTOMÁTICO
 # ========================================
 # Este workflow executa automaticamente quando você faz push para a branch main
-# Ele faz: deploy na EC2 (frontend agora tem configuração dinâmica)
+# Ele faz: terraform apply + deploy na EC2 (frontend com configuração dinâmica)
 
 name: Deploy to EC2
 
@@ -33,12 +33,59 @@ jobs:
       uses: actions/checkout@v4
       # Baixa o código do repositório para o runner
     
-    # STEP 2: DEPLOY NA EC2
+    # STEP 2: CONFIGURAR TERRAFORM
+    # ========================================
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      # Instala o Terraform no runner
+    
+    # STEP 3: CONFIGURAR AWS
+    # ========================================
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+        # Configura as credenciais da AWS para o Terraform funcionar
+    
+    # STEP 4: DEPLOY DA INFRAESTRUTURA
+    # ========================================
+    - name: Deploy Infrastructure
+      run: |
+        cd terraform
+        terraform init
+        terraform apply -auto-approve
+        echo "IP=$(terraform output -raw ec2_public_ip)" >> $GITHUB_ENV
+        # Executa terraform apply e salva o IP da EC2 em uma variável
+    
+    # STEP 5: PREPARAR EC2 PARA GIT
+    # ========================================
+    - name: Prepare EC2 for Git
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ env.IP }}
+        username: ubuntu
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          # Instalar git se não estiver instalado
+          if ! command -v git &> /dev/null; then
+            sudo apt update && sudo apt install git -y
+          fi
+          
+          # Clonar repositório se não existir
+          if [ ! -d "/home/ubuntu/case-itau" ]; then
+            cd /home/ubuntu
+            git clone https://github.com/denilsondev/case_itau_nodejs.git case-itau
+          fi
+          # Prepara a EC2 para receber o código
+    
+    # STEP 6: DEPLOY NA EC2
     # ========================================
     - name: Deploy to EC2
       uses: appleboy/ssh-action@v1.0.3
       with:
-        host: 107.20.56.165
+        host: ${{ env.IP }}
         username: ubuntu
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |

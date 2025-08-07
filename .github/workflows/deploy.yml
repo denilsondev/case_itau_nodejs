@@ -38,7 +38,7 @@ jobs:
     - name: Deploy to EC2
       uses: appleboy/ssh-action@v1.0.3
       with:
-        host: 18.234.197.173  # IP da EC2 - atualizar quando mudar
+        host: 154.198.61.157  # IP da EC2 - atualizar quando mudar
         username: ubuntu
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
@@ -88,6 +88,6 @@ jobs:
           
           echo "✅ Deploy concluído com sucesso!"
           echo "🌐 URLs disponíveis:"
-          echo "   - Frontend: http://54.227.122.241:4200"
-          echo "   - Backend: http://54.227.122.241:8080/api"
-          echo "   - Swagger: http://54.227.122.241:8080/docs" 
+          echo "   - Frontend: http://54.198.61.157:4200"
+          echo "   - Backend: http://54.198.61.157:8080/api"
+          echo "   - Swagger: http://54.198.61.157:8080/docs" 

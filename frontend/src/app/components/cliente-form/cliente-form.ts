@@ -22,27 +22,27 @@ export class ClienteFormComponent {
 
   constructor(private clienteService: ClienteService) {}
 
-  // Método chamado quando o formulário é enviado
+
   onSubmit() {
-    // Validar se os campos estão preenchidos
+
     if (!this.cliente.nome || !this.cliente.email) {
       this.mensagem = 'Por favor, preencha todos os campos';
       this.sucesso = false;
       return;
     }
 
-    // Validar formato do email
+
     if (!this.isValidEmail(this.cliente.email)) {
       this.mensagem = 'Por favor, insira um email válido';
       this.sucesso = false;
       return;
     }
 
-    // Iniciar loading
+
     this.loading = true;
     this.mensagem = '';
 
-    // Chamar o serviço para criar o cliente
+
     this.clienteService.criarCliente(this.cliente).subscribe({
       next: (novoCliente) => {
         // Sucesso
@@ -50,10 +50,10 @@ export class ClienteFormComponent {
         this.sucesso = true;
         this.loading = false;
         
-        // Limpar formulário
+
         this.cliente = { nome: '', email: '' };
         
-        // Emitir evento para fechar modal
+
         this.clienteCriado.emit(novoCliente);
       },
       error: (error) => {
@@ -65,13 +65,11 @@ export class ClienteFormComponent {
     });
   }
 
-  // Método para validar email
   private isValidEmail(email: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   }
 
-  // Método para limpar mensagens
   limparMensagem() {
     this.mensagem = '';
   }

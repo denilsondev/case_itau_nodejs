@@ -16,35 +16,33 @@ export class App {
   clienteSelecionado: Cliente | null = null;
   mostrarModalCriar: boolean = false;
 
-  // Método para receber cliente selecionado da lista
   onClienteSelecionado(cliente: Cliente | null) {
     this.clienteSelecionado = cliente;
   }
 
-  // Método para abrir modal de criar cliente
   abrirModalCriarCliente() {
     this.mostrarModalCriar = true;
   }
 
-  // Método para fechar modal de criar cliente
+
   fecharModalCriarCliente() {
     this.mostrarModalCriar = false;
   }
 
-  // Método chamado quando cliente é criado
+ 
   onClienteCriado(cliente: Cliente) {
     this.fecharModalCriarCliente();
-    // Aqui você pode adicionar lógica para recarregar a lista
+
   }
 
-  // Método para fechar modal de operações
+
   fecharModalOperacoes() {
     this.clienteSelecionado = null;
   }
 
-  // Método para atualizar lista quando operação é realizada
+  
   onOperacaoRealizada() {
-    // Vamos implementar depois para recarregar a lista
+
     this.fecharModalOperacoes();
   }
 }

@@ -12,7 +12,7 @@ import { Cliente } from './services/cliente';
   styleUrl: './app.css'
 })
 export class App {
-  title = 'Sistema Bancario';
+  title = 'Sistema Bancario :)';
   clienteSelecionado: Cliente | null = null;
   mostrarModalCriar: boolean = false;
 

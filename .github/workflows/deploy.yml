@@ -1,30 +1,17 @@
-# ========================================
-# GITHUB ACTIONS - DEPLOY AUTOMÁTICO
-# ========================================
-# Este workflow executa automaticamente quando você faz push para a branch main
-# Ele faz: deploy na EC2 (frontend com configuração dinâmica)
-
 name: Deploy to EC2
 
-# ========================================
-# TRIGGER - QUANDO EXECUTAR
-# ========================================
-# Executa sempre que alguém fizer push para a branch main
+
 on:
   push:
     branches: [ main ]
 
-# ========================================
-# JOB PRINCIPAL - DEPLOY
-# ========================================
+
 jobs:
   deploy:
     # Executa em um runner Ubuntu (servidor do GitHub)
     runs-on: ubuntu-latest
     
-    # ========================================
-    # STEPS - PASSOS DO DEPLOY
-    # ========================================
+ 
     steps:
     
     # STEP 1: BAIXAR O CÓDIGO
@@ -42,52 +29,48 @@ jobs:
         username: ubuntu
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
-          echo "🚀 Iniciando deploy automático..."
+          echo "Iniciando deploy..."
           
           # Aguardar user_data terminar
           sleep 30
           
           # Instalar git se necessário
           if ! command -v git &> /dev/null; then
-            echo "📦 Instalando git..."
+            echo "Instalando git..."
             sudo apt update && sudo apt install git -y
           fi
           
           # Preparar diretório e clonar repositório
-          echo "📁 Preparando repositório..."
+          echo "Preparando repositório..."
           rm -rf /home/ubuntu/case-itau
           cd /home/ubuntu
           git clone https://github.com/denilsondev/case_itau_nodejs.git case-itau
           
           # Verificações de segurança
           if [ ! -d "/home/ubuntu/case-itau" ]; then
-            echo "❌ Falha ao clonar repositório"
+            echo "Falha ao clonar repositório"
             exit 1
           fi
           
           cd /home/ubuntu/case-itau
           
           if [ ! -d ".git" ]; then
-            echo "❌ Não é um repositório git"
+            echo "Não é um repositório git"
             exit 1
           fi
           
           if [ ! -f "docker-compose.yml" ]; then
-            echo "❌ docker-compose.yml não encontrado"
+            echo "docker-compose.yml não encontrado"
             ls -la
             exit 1
           fi
           
           # Atualizar código e fazer deploy
-          echo "🔄 Atualizando código..."
+          echo "Atualizando código..."
           git pull origin main
           
-          echo "🐳 Iniciando containers..."
+          echo "Iniciando containers..."
           docker-compose down
           docker-compose up -d --build
           
-          echo "✅ Deploy concluído com sucesso!"
-          echo "🌐 URLs disponíveis:"
-          echo "   - Frontend: http://3.80.170.116:4200"
-          echo "   - Backend: http://3.80.170.116:8080/api"
-          echo "   - Swagger: http://3.80.170.116:8080/docs" 
+          echo "Deploy concluído com sucesso!" 

@@ -147,6 +147,7 @@ secrets.json
 # Terraform state
 terraform.tfstate
 terraform.tfstate.backup
+*.tfstate.lock.info
 
 # Terraform CLI dir
 .terraform/

@@ -45,7 +45,7 @@ resource "aws_instance" "app" {
 # ========================================
 
 resource "aws_security_group" "app" {
-  name        = "case-itau-sg"
+  name        = "case-itau-sg-new"
   description = "Security group for Case Itau"
 
   # SSH

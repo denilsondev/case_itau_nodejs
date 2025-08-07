@@ -33,40 +33,7 @@ jobs:
       uses: actions/checkout@v4
       # Baixa o código do repositório para o runner
     
-    # STEP 2: PREPARAR EC2
-    # ========================================
-    - name: Prepare EC2
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: 54.227.122.241  # IP da EC2 - atualizar quando mudar
-        username: ubuntu
-        key: ${{ secrets.EC2_SSH_KEY }}
-        script: |
-          # Aguardar um pouco para o user_data terminar
-          sleep 30
-          
-          # Instalar git se não estiver instalado
-          if ! command -v git &> /dev/null; then
-            sudo apt update && sudo apt install git -y
-          fi
-          
-          # Remover diretório se existir (para garantir clone limpo)
-          rm -rf /home/ubuntu/case-itau
-          
-          # Clonar repositório
-          cd /home/ubuntu
-          git clone https://github.com/denilsondev/case_itau_nodejs.git case-itau
-          
-          # Verificar se clonou com sucesso
-          if [ ! -d "/home/ubuntu/case-itau" ]; then
-            echo "❌ Falha ao clonar repositório"
-            exit 1
-          fi
-          
-          echo "✅ Repositório clonado com sucesso"
-          # Prepara a EC2 para receber o código
-    
-    # STEP 3: DEPLOY NA EC2
+    # STEP 2: DEPLOY COMPLETO NA EC2
     # ========================================
     - name: Deploy to EC2
       uses: appleboy/ssh-action@v1.0.3
@@ -75,34 +42,52 @@ jobs:
         username: ubuntu
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
-          # Verificar se o diretório existe
+          echo "🚀 Iniciando deploy automático..."
+          
+          # Aguardar user_data terminar
+          sleep 30
+          
+          # Instalar git se necessário
+          if ! command -v git &> /dev/null; then
+            echo "📦 Instalando git..."
+            sudo apt update && sudo apt install git -y
+          fi
+          
+          # Preparar diretório e clonar repositório
+          echo "📁 Preparando repositório..."
+          rm -rf /home/ubuntu/case-itau
+          cd /home/ubuntu
+          git clone https://github.com/denilsondev/case_itau_nodejs.git case-itau
+          
+          # Verificações de segurança
           if [ ! -d "/home/ubuntu/case-itau" ]; then
-            echo "❌ Diretório case-itau não encontrado"
+            echo "❌ Falha ao clonar repositório"
             exit 1
           fi
           
           cd /home/ubuntu/case-itau
           
-          # Verificar se é um repositório git
           if [ ! -d ".git" ]; then
             echo "❌ Não é um repositório git"
             exit 1
           fi
           
-          # Atualizar código
-          git pull origin main
-          
-          # Verificar se docker-compose existe
           if [ ! -f "docker-compose.yml" ]; then
             echo "❌ docker-compose.yml não encontrado"
             ls -la
             exit 1
           fi
           
-          # Fazer deploy
+          # Atualizar código e fazer deploy
+          echo "🔄 Atualizando código..."
+          git pull origin main
+          
+          echo "🐳 Iniciando containers..."
           docker-compose down
           docker-compose up -d --build
           
-          echo "✅ Deploy concluído com sucesso"
-          # Conecta na EC2 via SSH e executa o deploy
-          # Frontend agora tem configuração dinâmica automática 
+          echo "✅ Deploy concluído com sucesso!"
+          echo "🌐 URLs disponíveis:"
+          echo "   - Frontend: http://54.227.122.241:4200"
+          echo "   - Backend: http://54.227.122.241:8080/api"
+          echo "   - Swagger: http://54.227.122.241:8080/docs" 

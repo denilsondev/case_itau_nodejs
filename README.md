@@ -28,3 +28,46 @@ No projeto foi disponibilizada uma API de Clientes com os metodos abaixo realiza
 
 Após finalizar o case, envie o link do seu github com a solução final para o e-mail andre.gattini@itau-unibanco.com.br
 
+---
+
+## Melhorias Implementadas
+
+### Backend
+- **NestJS**: Framework moderno com arquitetura em camadas
+- **TypeScript**: Tipagem estática para maior segurança
+- **DTOs**: Transformação de dados de entrada e saída
+- **Validações**: Validação de parâmetros de entrada com class-validator
+- **Tratamento de Erros**: Exception filters globais
+- **TypeORM**: ORM com suporte a migrations
+- **MySQL**: Migração do SQLite para banco robusto
+- **Swagger**: Documentação interativa da API
+- **Cache**: Performance com cache em memória
+- **Logs**: Logs estruturados para monitoramento
+- **Testes**: Testes unitários com Jest
+- **Transações**: Validação de saque/depósito com locks pessimistas
+
+### Frontend
+- **Angular 20**: Framework moderno para interface
+- **Bootstrap**: Design
+
+### DevOps
+- **Docker Compose**: Build e orquestração de containers
+- **Terraform**: Provisionamento de infraestrutura
+- **GitHub Actions**: Deploy automatizado
+
+---
+
+## Como Executar
+
+```bash
+# Clone e execute
+git clone https://github.com/denilsondev/case_itau_nodejs.git
+cd case_itau_nodejs
+docker-compose up -d
+
+# Acesse
+# Frontend: http://localhost:4200
+# API: http://localhost:8080/api
+# Docs: http://localhost:8080/docs
+```
+

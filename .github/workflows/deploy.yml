@@ -38,7 +38,7 @@ jobs:
     - name: Deploy to EC2
       uses: appleboy/ssh-action@v1.0.3
       with:
-        host: 54.227.122.241  # IP da EC2 - atualizar quando mudar
+        host: 18.234.197.173  # IP da EC2 - atualizar quando mudar
         username: ubuntu
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
